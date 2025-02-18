@@ -1,0 +1,59 @@
+# Ignore virtual environments
+venv/
+
+# Ignore PyCharm project files
+.idea/
+
+# Ignore bytecode files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore logs and temporary files
+*.log
+*.pot
+*.mo
+*.swp
+*.swo
+*.swn
+
+# Ignore media/uploads (if you store user-uploaded files)
+media/
+
+# Ignore database files (if using SQLite)
+db.sqlite3
+*.sqlite3
+
+# Ignore environment variables and credentials
+.env
+.env.local
+.env.*.local
+config/settings/local.py  # If you have local settings
+
+# Ignore Django migrations cache (not the actual migrations)
+**/migrations/__pycache__/
+
+# Ignore compiled code
+*.egg-info/
+*.eggs/
+*.manifest
+*.spec
+
+# Ignore coverage and testing files
+.coverage
+htmlcov/
+*.cover
+.cache/
+nosetests.xml
+coverage.xml
+*.testresult
+
+# Ignore static files that should be generated
+staticfiles/
+node_modules/
+dist/
+build/
+
+# Ignore Docker files (if using Docker)
+docker-compose.override.yml
