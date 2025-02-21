@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "platform"
+version = "0.1"
+description = "Core platform for the project."
+dependencies = []
+
+[tool.setuptools]
+provides = ["platform"]

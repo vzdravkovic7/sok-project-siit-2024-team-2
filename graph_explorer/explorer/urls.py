@@ -1,5 +1,5 @@
 """
-URL configuration for sok_project_siit_2024_team_2 project.
+URL configuration for explorer project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.1/topics/http/urls/
