@@ -30,6 +30,9 @@ class CodeDatasource(DataSourcePlugin):
         node1 = Node(node_id="A", value=10)
         node2 = Node(node_id="B", value=20)
         node3 = Node(node_id="C", value=30)
+        node4 = Node(node_id="D", value=50)
+        node5 = Node(node_id="E", value=70)
+        node6 = Node(node_id="F", value=90)
 
         # Creating edges
         edge1 = Edge(from_node=node1, to_node=node2, weight=5.0)
@@ -43,4 +46,4 @@ class CodeDatasource(DataSourcePlugin):
         graph.add_edge(edge1)
         graph.add_edge(edge2)
 
-        return [node1, node2, node3]  # Returning nodes (modify if needed)
+        return [node1, node2, node3, node4, node5, node6]  # Returning nodes (modify if needed)
