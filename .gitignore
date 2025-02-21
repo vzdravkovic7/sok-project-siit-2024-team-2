@@ -57,5 +57,3 @@ build/
 
 # Ignore Docker files (if using Docker)
 docker-compose.override.yml
-
-.env
