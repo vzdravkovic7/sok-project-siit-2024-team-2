@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "graph-datasource-code"
+version = "0.1"
+description = "Component for loading graph data fixed in code."
+dependencies = [
+    "graph-api==0.1",
+    "Django>=5.1"
+]
+
+[project.entry-points."graph.datasource"]
+datasource_code = "shop.code.code_datasource:CodeDatasource"
+
+[tool.setuptools]
+provides = ["code_datasource"]
