@@ -1,7 +1,7 @@
 from typing import List
 
-from shop.api.models import Node, Edge, Graph
-from shop.api.services.plugin import DataSourcePlugin
+from graph.api.models import Node, Edge, Graph
+from graph.api.services.plugin import DataSourcePlugin
 
 class SimpleGraph(Graph):
     def __init__(self):

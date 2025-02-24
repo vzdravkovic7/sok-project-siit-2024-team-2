@@ -1,0 +1,50 @@
+<div>
+    <svg width="500" height="500"></svg>
+</div>
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<script>
+    // Graph data represented as a tree structure.
+    var data = {{ data_json|safe }};
+
+    var svg = d3.select('svg');
+
+    // Creating the tree layout
+    var tree = d3.layout.tree().size([400, 400]);
+
+    // Extract nodes from the root node
+    var nodes = tree.nodes(data);
+
+    // Extract links connecting parent-child nodes
+    var links = tree.links(nodes);
+
+    // Add links (lines connecting nodes)
+    var link = svg.selectAll('.link')
+        .data(links)
+        .enter().append('line')
+        .attr('class', 'link')
+        .attr('x1', function(d) { return d.source.y; })
+        .attr('y1', function(d) { return d.source.x; })
+        .attr('x2', function(d) { return d.target.y; })
+        .attr('y2', function(d) { return d.target.x; });
+
+    // Add nodes (each node consists of a circle and a text label)
+    var node = svg.selectAll('.node')
+        .data(nodes)
+        .enter().append('g')
+        .attr('class', 'node')
+        .attr('transform', function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+        .on('click', function(d) {
+            nodeClick(d);
+        });
+
+    // Circle representing a node
+    node.append('circle')
+        .attr('r', 10)
+        .attr('fill', 'blue');
+
+    // Label text for each node
+    node.append('text')
+        .attr("dx", 12)
+        .attr("dy", 4)
+        .text(function(d) { return d.name; });
+</script>

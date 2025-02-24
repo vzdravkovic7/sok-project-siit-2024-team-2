@@ -1,7 +1,7 @@
 from typing import Any, List
 from abc import ABC, abstractmethod
 
-from api.shop.api.models import Graph, Node
+from graph.api.models import Graph, Node
 
 
 class Plugin(ABC):

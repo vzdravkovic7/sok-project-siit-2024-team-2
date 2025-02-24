@@ -57,3 +57,6 @@ build/
 
 # Ignore Docker files (if using Docker)
 docker-compose.override.yml
+
+# d3.v3.js needs to be ignored
+graph_explorer/webgraph/static/d3.v3.js
