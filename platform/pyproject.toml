@@ -6,7 +6,16 @@ build-backend = "setuptools.build_meta"
 name = "platform"
 version = "0.1"
 description = "Core platform for the project."
-dependencies = []
+dependencies = [
+    "graph-api==0.1",
+    "jinja2==3.1.4"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.data-files]
+templates = ["templates/*"]
 
 [tool.setuptools]
 provides = ["platform"]

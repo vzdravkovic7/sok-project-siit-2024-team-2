@@ -1,6 +1,6 @@
 from importlib.metadata import entry_points
 from typing import List, Dict
-from api.shop.api.services import DataSourcePlugin
+from graph.api.services import DataSourcePlugin
 
 class PluginService:
     def __init__(self):

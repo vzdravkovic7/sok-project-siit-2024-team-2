@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [project.entry-points."graph.datasource"]
-datasource_code = "shop.code.code_datasource:CodeDatasource"
+datasource_code = "graph.code.code_datasource:CodeDatasource"
 
 [tool.setuptools]
 provides = ["code_datasource"]

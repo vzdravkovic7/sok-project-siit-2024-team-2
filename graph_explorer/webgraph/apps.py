@@ -1,11 +1,11 @@
 from django.apps import AppConfig
-from platform.shop.use_cases.plugin_recognition import PluginService
+from graph.use_cases.plugin_recognition import PluginService
 
-datasource_group = 'graph_explorer.datasource'
+datasource_group = 'graph.datasource'
 
 class ExplorerConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'graph_explorer'
+    name = 'webgraph'
     plugin_service = PluginService()
 
     def ready(self):

@@ -1,7 +1,7 @@
 from typing import Any, List
 from abc import ABC, abstractmethod
 
-from api.shop.api.models import Graph, Node
+from graph.api.models import Graph, Node
 
 
 class Plugin(ABC):
@@ -29,16 +29,15 @@ class DataSourcePlugin(Plugin):
     """
     An abstraction representing a plugin for loading graph data from a specific data source.
     """
-
     @abstractmethod
-    def load(self, **kwargs) -> List[Node]:
+    def load(self, **kwargs) -> Graph:
         """
-        Loads data from the data source and returns it as a list of `Node` objects.
+        Loads data from the data source and returns a `Graph` object with both nodes and edges.
 
         :param kwargs: Arbitrary keyword arguments for customization or filtering of the data loading process.
         :type kwargs: dict
-        :return: A list of `Node` objects loaded from the data source.
-        :rtype: List[Node]
+        :return: A `Graph` object containing both `Node` and `Edge` objects.
+        :rtype: Graph
         """
         pass
 
