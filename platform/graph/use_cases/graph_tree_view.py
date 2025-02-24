@@ -1,11 +1,9 @@
 import os
-import sys
 import json
 from jinja2 import Template
-from django.conf import settings
-from typing import List, Dict
+from typing import List
 
-from graph.api.models import Graph, Node
+from graph.code.code_datasource import SimpleGraph
 from .const import DATASOURCE_GROUP
 from .plugin_recognition import PluginService
 
@@ -25,14 +23,17 @@ class TreeView(object):
         :param kwargs: Arguments for the data source plugin.
         :return: (header, body) HTML strings to be included in the page.
         """
-        nodes = []
+        graph = None
         plugins = self.__plugin_service.plugins.get(DATASOURCE_GROUP, [])
 
         for plugin in plugins:
             if plugin.identifier() == plugin_id:
-                nodes = plugin.load(**kwargs)
+                graph = plugin.load(**kwargs)  # Load the graph
 
-        tree_data = self.__generate_tree_data(nodes)
+        if not graph:
+            return "", ""  # If no graph is found, return empty content
+
+        tree_data = self.__generate_tree_data(graph)
         data_json = json.dumps(tree_data, ensure_ascii=False)
 
         with open(os.path.join(TEMPLATES_DIR, "graph-tree-layout-header.html"), "r", encoding="utf-8") as file:
@@ -44,21 +45,29 @@ class TreeView(object):
         body_html = Template(body_template).render(data_json=data_json)
         return header_html, body_html
 
-    def __generate_tree_data(self, nodes: List[Node]) -> Dict:
+    def __generate_tree_data(self, graph: SimpleGraph) -> dict:
         """
-        Constructs a hierarchical structure for nodes.
+        Constructs a hierarchical structure for nodes, connecting them based on the edges.
 
-        :param nodes: List of graph nodes.
+        :param graph: Graph instance containing nodes and edges.
         :return: JSON-like dictionary representing the tree structure.
         """
-        children = [
-            {
-                "id": f"node_{node.node_id}",
-                "name": str(node.value),
-                "children": []
-            }
-            for node in nodes
-        ]
+
+        # Create the structure for tree nodes based on edges
+        children = []
+        for edge in graph.edges:
+            from_node = edge.from_node
+            to_node = edge.to_node
+            children.append({
+                'id': f'node_{from_node.node_id}',
+                'name': str(from_node.value),
+                'children': [
+                    {
+                        'id': f'node_{to_node.node_id}',
+                        'name': str(to_node.value),
+                    }
+                ]
+            })
 
         return {
             "id": "Graph",

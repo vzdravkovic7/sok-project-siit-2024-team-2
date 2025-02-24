@@ -25,25 +25,35 @@ class CodeDatasource(DataSourcePlugin):
     def identifier(self) -> str:
         return "datasource_code"
 
-    def load(self) -> List[Node]:
-        # Creating nodes
-        node1 = Node(node_id="A", value=10)
-        node2 = Node(node_id="B", value=20)
-        node3 = Node(node_id="C", value=30)
-        node4 = Node(node_id="D", value=50)
-        node5 = Node(node_id="E", value=70)
-        node6 = Node(node_id="F", value=90)
+    def load(self) -> SimpleGraph:
+        # Creating nodes with different values
+        nodeA = Node(node_id="A", value=10)
+        nodeB = Node(node_id="B", value=20)
+        nodeC = Node(node_id="C", value=30)
+        nodeD = Node(node_id="D", value=50)
+        nodeE = Node(node_id="E", value=70)
+        nodeF = Node(node_id="F", value=90)
+        nodeG = Node(node_id="G", value=100)
+        nodeH = Node(node_id="H", value=120)
 
         # Creating edges
-        edge1 = Edge(from_node=node1, to_node=node2, weight=5.0)
-        edge2 = Edge(from_node=node2, to_node=node3, weight=3.5)
+        edges = [
+            Edge(from_node=nodeA, to_node=nodeB, weight=5.0),
+            Edge(from_node=nodeB, to_node=nodeC, weight=3.5),
+            Edge(from_node=nodeC, to_node=nodeD, weight=2.0),
+            Edge(from_node=nodeD, to_node=nodeE, weight=1.5),
+            Edge(from_node=nodeE, to_node=nodeF, weight=4.0),
+            Edge(from_node=nodeF, to_node=nodeG, weight=6.0),
+            Edge(from_node=nodeG, to_node=nodeH, weight=3.0),
+            Edge(from_node=nodeB, to_node=nodeE, weight=2.5),
+            Edge(from_node=nodeD, to_node=nodeG, weight=7.0)
+        ]
 
         # Creating a graph and adding nodes and edges
         graph = SimpleGraph()
-        graph.add_node(node1)
-        graph.add_node(node2)
-        graph.add_node(node3)
-        graph.add_edge(edge1)
-        graph.add_edge(edge2)
+        for node in [nodeA, nodeB, nodeC, nodeD, nodeE, nodeF, nodeG, nodeH]:
+            graph.add_node(node)
+        for edge in edges:
+            graph.add_edge(edge)
 
-        return [node1, node2, node3, node4, node5, node6]  # Returning nodes (modify if needed)
+        return graph
