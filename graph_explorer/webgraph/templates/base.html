@@ -25,6 +25,15 @@
           </div>
       </div>
       <div class="left">
+          <div>
+              {% if visualizer_plugins %}
+                 {% for p in visualizer_plugins %}
+                    <a href="{% url 'visualizer_plugin' id=p.identifier %}">{{ p.name }}</a>
+                 {% endfor %}
+              {% else %}
+                <h3>No recognized visualizer plugins</h3>
+              {% endif %}
+          </div>
           <ul>
               <li>
                   <a href="{% url 'graph_layout' %}">Graph Layout</a>
