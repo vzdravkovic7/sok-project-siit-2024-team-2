@@ -1,7 +1,8 @@
 from typing import List
-
+import random
 from graph.api.models import Node, Edge, Graph
 from graph.api.services.plugin import DataSourcePlugin
+
 
 class SimpleGraph(Graph):
     def __init__(self):
@@ -26,33 +27,23 @@ class CodeDatasource(DataSourcePlugin):
         return "datasource_code"
 
     def load(self) -> SimpleGraph:
-        # Creating nodes with different values
-        nodeA = Node(node_id="A", value=10)
-        nodeB = Node(node_id="B", value=20)
-        nodeC = Node(node_id="C", value=30)
-        nodeD = Node(node_id="D", value=50)
-        nodeE = Node(node_id="E", value=70)
-        nodeF = Node(node_id="F", value=90)
-        nodeG = Node(node_id="G", value=100)
-        nodeH = Node(node_id="H", value=120)
-
-        # Creating edges
-        edges = [
-            Edge(from_node=nodeA, to_node=nodeB, weight=5.0),
-            Edge(from_node=nodeB, to_node=nodeC, weight=3.5),
-            Edge(from_node=nodeC, to_node=nodeD, weight=2.0),
-            Edge(from_node=nodeD, to_node=nodeE, weight=1.5),
-            Edge(from_node=nodeE, to_node=nodeF, weight=4.0),
-            Edge(from_node=nodeF, to_node=nodeG, weight=6.0),
-            Edge(from_node=nodeG, to_node=nodeH, weight=3.0),
-            Edge(from_node=nodeB, to_node=nodeE, weight=2.5),
-            Edge(from_node=nodeD, to_node=nodeG, weight=7.0)
-        ]
-
-        # Creating a graph and adding nodes and edges
         graph = SimpleGraph()
-        for node in [nodeA, nodeB, nodeC, nodeD, nodeE, nodeF, nodeG, nodeH]:
+
+        # Generate 200 nodes with random values between 10 and 1000
+        nodes = [Node(node_id=str(i), value=random.randint(10, 1000)) for i in range(200)]
+
+        # Add nodes to the graph
+        for node in nodes:
             graph.add_node(node)
+
+        # Generate 400 random edges
+        edges = []
+        for _ in range(400):
+            from_node, to_node = random.sample(nodes, 2)  # Pick two distinct nodes
+            weight = round(random.uniform(1.0, 10.0), 2)  # Random weight between 1.0 and 10.0
+            edges.append(Edge(from_node=from_node, to_node=to_node, weight=weight))
+
+        # Add edges to the graph
         for edge in edges:
             graph.add_edge(edge)
 

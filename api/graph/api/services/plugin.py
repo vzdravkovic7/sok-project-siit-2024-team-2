@@ -49,9 +49,9 @@ class VisualizerPlugin(ABC):
     @abstractmethod
     def name(self) -> str:
         """
-        Retrieves the name of the visualizer plugin.
+        Retrieves the name of the simple plugin.
 
-        :return: The name of the visualizer plugin.
+        :return: The name of the simple plugin.
         :rtype: str
         """
         pass
@@ -59,9 +59,9 @@ class VisualizerPlugin(ABC):
     @abstractmethod
     def identifier(self) -> str:
         """
-        Retrieves a unique identifier for the visualizer plugin.
+        Retrieves a unique identifier for the simple plugin.
 
-        :return: The unique identifier of the visualizer plugin.
+        :return: The unique identifier of the simple plugin.
         :rtype: str
         """
         pass
