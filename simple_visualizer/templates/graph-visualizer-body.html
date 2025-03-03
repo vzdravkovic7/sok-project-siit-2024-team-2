@@ -1,5 +1,6 @@
 <div>
-    <svg width="500" height="500"></svg>
+    <svg id="main-svg" width="500" height="500"></svg>
+    <svg id="bird-view" width="200" height="200"></svg>
 </div>
 
 <script src="https://d3js.org/d3.v3.min.js"></script>
@@ -7,30 +8,42 @@
     var data = {{ data_json|safe }};
 
     var width = 500, height = 500;
+    var birdWidth = 200, birdHeight = 200;
 
-    // Create SVG and append a 'g' group for transformations
-    var svg = d3.select("svg")
+    // Compute graph bounds for scaling in Bird View
+    var minX = d3.min(data.nodes, d => d.x);
+    var maxX = d3.max(data.nodes, d => d.x);
+    var minY = d3.min(data.nodes, d => d.y);
+    var maxY = d3.max(data.nodes, d => d.y);
+
+    var graphWidth = maxX - minX;
+    var graphHeight = maxY - minY;
+    var scaleFactor = Math.min(birdWidth / graphWidth, birdHeight / graphHeight) * 0.5; // Smaller to fit better
+
+    var offsetX = (birdWidth - graphWidth * scaleFactor) / 1.3;
+    var offsetY = (birdHeight - graphHeight * scaleFactor) / 1.3;
+
+    // Main View
+    var svg = d3.select("#main-svg")
         .attr("width", width)
         .attr("height", height);
 
     var container = svg.append("g");
 
-    // Enable zooming and panning
     var zoom = d3.behavior.zoom()
         .scaleExtent([0.5, 2])
         .on("zoom", function () {
             container.attr("transform", `translate(${d3.event.translate}) scale(${d3.event.scale})`);
+            updateBirdView();
         });
 
     svg.call(zoom);
 
-    // Ensure edge 'source' and 'target' refer to actual node objects
     data.edges.forEach(function (edge) {
         edge.source = data.nodes.find(node => node.id === edge.from);
         edge.target = data.nodes.find(node => node.id === edge.to);
     });
 
-    // Set up force-directed layout
     var force = d3.layout.force()
         .size([width, height])
         .nodes(data.nodes)
@@ -40,7 +53,6 @@
         .on("tick", tick)
         .start();
 
-    // Create links (edges)
     var link = container.selectAll(".link")
         .data(data.edges)
         .enter().append("line")
@@ -48,45 +60,38 @@
         .attr("stroke-width", 2)
         .attr("stroke", "#9ecae1");
 
-    // Create node groups (so text and circles move together)
     var node = container.selectAll(".node")
         .data(data.nodes)
         .enter().append("g")
-        .attr("class", "node");
-        node.call(
-        d3.behavior.drag()
+        .attr("class", d => "node main-node-" + d.id)
+        .call(d3.behavior.drag()
             .on("dragstart", function (d) {
-                d3.event.sourceEvent.stopPropagation(); // Prevent zoom from interfering
-                d.fixed = true; // Ensure the node remains dynamic
+                d3.event.sourceEvent.stopPropagation();
+                d.fixed = true;
             })
             .on("drag", function (d) {
                 d.px += d3.event.dx;
                 d.py += d3.event.dy;
                 d.x += d3.event.dx;
                 d.y += d3.event.dy;
-                force.resume(); // Restart force simulation
+                force.resume();
+                updateBirdView();
             })
             .on("dragend", function (d) {
-                d.fixed = false; // Let the node continue moving naturally
+                d.fixed = false;
             })
-    );
-      // Enable dragging
+        );
 
-    // Append circles to represent nodes
     node.append("circle")
         .attr("r", 10)
-        .attr("fill", "blue")
-        .on("mouseover", showDetails)
-        .on("mouseout", hideDetails);
+        .attr("fill", "blue");
 
-    // Append text labels to nodes
     node.append("text")
         .attr("dx", 12)
         .attr("dy", 4)
         .text(d => d.id)
         .style("font-size", "12px");
 
-    // Function to update positions after each force layout tick
     function tick() {
         link.attr("x1", d => d.source.x)
             .attr("y1", d => d.source.y)
@@ -94,11 +99,13 @@
             .attr("y2", d => d.target.y);
 
         node.attr("transform", d => `translate(${d.x},${d.y})`);
+        updateBirdView();
     }
 
-    // Show node details on hover
     function showDetails(d) {
-        d3.select(this).transition().duration(200).attr("fill", "red"); // Highlight
+        // Highlight in both views
+        d3.selectAll(".main-node-" + d.id + " circle").transition().duration(200).attr("fill", "red");
+        d3.selectAll(".bird-node-" + d.id).transition().duration(200).attr("fill", "red");
 
         d3.select("body").append("div")
             .attr("id", "tooltip")
@@ -111,16 +118,60 @@
             .text(`ID: ${d.id}, Name: ${d.name}`);
     }
 
-    // Hide tooltip on mouseout
-    function hideDetails() {
-        d3.select(this).transition().duration(200).attr("fill", "blue"); // Restore color
+    function hideDetails(d) {
+        d3.selectAll(".main-node-" + d.id + " circle").transition().duration(200).attr("fill", "blue");
+        d3.selectAll(".bird-node-" + d.id).transition().duration(200).attr("fill", "blue");
         d3.select("#tooltip").remove();
     }
 
-    // Handle node click
     function nodeClick(d) {
         alert(`Node ID: ${d.id}, Name: ${d.name}`);
     }
 
     node.on("click", nodeClick);
+    node.on("mouseover", showDetails);
+    node.on("mouseout", hideDetails);
+
+    // Bird View Setup
+    var birdSvg = d3.select("#bird-view");
+    var birdContainer = birdSvg.append("g");
+
+    var birdLink = birdContainer.selectAll(".bird-link")
+        .data(data.edges)
+        .enter().append("line")
+        .attr("class", "bird-link")
+        .attr("stroke-width", 1)
+        .attr("stroke", "#aaa");
+
+    var birdNode = birdContainer.selectAll(".bird-node")
+        .data(data.nodes)
+        .enter().append("circle")
+        .attr("class", d => "bird-node bird-node-" + d.id)
+        .attr("r", 3)
+        .attr("fill", "blue");
+
+    var birdViewport = birdSvg.append("rect")
+        .attr("fill", "none")
+        .attr("stroke", "red")
+        .attr("stroke-width", 1);
+
+    function updateBirdView() {
+        birdNode.attr("cx", d => (d.x - minX) * scaleFactor + offsetX)
+                .attr("cy", d => (d.y - minY) * scaleFactor + offsetY);
+
+        birdLink.attr("x1", d => (d.source.x - minX) * scaleFactor + offsetX)
+                .attr("y1", d => (d.source.y - minY) * scaleFactor + offsetY)
+                .attr("x2", d => (d.target.x - minX) * scaleFactor + offsetX)
+                .attr("y2", d => (d.target.y - minY) * scaleFactor + offsetY);
+
+        var mainTransform = d3.transform(container.attr("transform"));
+        var tx = -mainTransform.translate[0] * scaleFactor + offsetX;
+        var ty = -mainTransform.translate[1] * scaleFactor + offsetY;
+        var s = mainTransform.scale[0];
+
+        birdViewport.attr("x", tx)
+                    .attr("y", ty)
+                    .attr("width", (width / s) * scaleFactor)
+                    .attr("height", (height / s) * scaleFactor);
+    }
 </script>

@@ -1,6 +1,4 @@
 import os
-import json
-from jinja2 import Template
 from .const import DATASOURCE_GROUP, VISUALIZER_GROUP
 from .plugin_recognition import PluginService
 
