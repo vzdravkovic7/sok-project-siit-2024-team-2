@@ -37,7 +37,7 @@ class SimpleVisualizer(VisualizerPlugin):
         """
         Converts the graph into a structured format for visualization.
         """
-        nodes = [{"id": node.node_id, "name": str(node.value)} for node in graph.nodes]
+        nodes = [{"id": node.node_id, "name": str(node.value), "x": float(node.x), "y": float(node.y)} for node in graph.nodes]
         edges = [{"from": edge.from_node.node_id, "to": edge.to_node.node_id, "weight": edge.weight} for edge in graph.edges]
 
         return {

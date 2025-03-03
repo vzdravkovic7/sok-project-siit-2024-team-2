@@ -28,22 +28,23 @@ class CodeDatasource(DataSourcePlugin):
 
     def load(self) -> SimpleGraph:
         graph = SimpleGraph()
+        nodes = []
 
-        # Generate 200 nodes with random values between 10 and 1000
-        nodes = [Node(node_id=str(i), value=random.randint(10, 1000)) for i in range(200)]
+        # Pre-generate positions for consistency
+        positions = [(random.uniform(0, 1000), random.uniform(0, 1000)) for _ in range(200)]
 
-        # Add nodes to the graph
-        for node in nodes:
+        for i, (x, y) in enumerate(positions):
+            node = Node(node_id=str(i), value=random.randint(10, 1000), x=x, y=y)
             graph.add_node(node)
+            nodes.append(node)
 
-        # Generate 400 random edges
+        # Generate 400 edges, ensuring they reference actual node objects
         edges = []
         for _ in range(400):
-            from_node, to_node = random.sample(nodes, 2)  # Pick two distinct nodes
-            weight = round(random.uniform(1.0, 10.0), 2)  # Random weight between 1.0 and 10.0
+            from_node, to_node = random.sample(nodes, 2)
+            weight = round(random.uniform(1.0, 10.0), 2)
             edges.append(Edge(from_node=from_node, to_node=to_node, weight=weight))
 
-        # Add edges to the graph
         for edge in edges:
             graph.add_edge(edge)
 
