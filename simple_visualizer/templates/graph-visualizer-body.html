@@ -1,14 +1,136 @@
-<div>
-    <svg id="main-svg" width="500" height="500"></svg>
-    <svg id="bird-view" width="200" height="200"></svg>
+<div style="display: flex; flex-direction: column; width: 100%; height: 100vh;">
+    <!-- Top section: Main View and Bird View -->
+    <div style="display: flex; flex: 1;">
+        <div style="flex: 2; display: flex; flex-direction: column; align-items: center;">
+            <svg id="main-svg" width="500" height="500"></svg>
+        </div>
+        <div style="flex: 1; display: flex; justify-content: center; align-items: center;">
+            <svg id="bird-view" width="200" height="200"></svg>
+        </div>
+    </div>
+
+    <!-- Bottom section: Tree View -->
+    <div id="tree-view" style="flex: 1; overflow-y: auto; overflow-x: auto; border-top: 1px solid #ccc;"></div>
 </div>
 
 <script src="https://d3js.org/d3.v3.min.js"></script>
 <script>
     var data = {{ data_json|safe }};
-
     var width = 500, height = 500;
     var birdWidth = 200, birdHeight = 200;
+
+    var treeData = {{ tree_data_json|safe }};
+    var treeWidth = 500, treeHeight = 1000;
+
+    // Modify tree layout size and increase separation between nodes
+    var treeLayout = d3.layout.tree().size([treeHeight, treeWidth * 2]).nodeSize([30, 90]);
+
+    var treeSvg = d3.select("#tree-view").append("svg")
+        .attr("width", treeWidth)
+        .attr("height", treeHeight)
+        .append("g")
+        .attr("transform", "translate(50,500)");
+
+    function updateTree() {
+        var nodes = treeLayout.nodes(treeData);
+        var links = treeLayout.links(nodes);
+
+        var maxDepth = d3.max(nodes, d => d.depth) || 0;
+        var nodeSpacing = 100;
+        var requiredWidth = (maxDepth + 1) * nodeSpacing;
+
+        d3.select("#tree-view svg")
+            .attr("width", Math.max(requiredWidth, 500));
+
+        // Update links
+        var treeLink = treeSvg.selectAll(".tree-link")
+            .data(links, d => d.target.id);
+
+        treeLink.enter().append("line")
+            .attr("class", "tree-link")
+            .attr("stroke", "#999");
+
+        treeLink.attr("x1", d => d.source.y)
+            .attr("y1", d => d.source.x)
+            .attr("x2", d => d.target.y)
+            .attr("y2", d => d.target.x);
+
+        treeLink.exit().remove();
+
+        // Update nodes
+        var treeNode = treeSvg.selectAll(".tree-node")
+            .data(nodes, d => d.id);
+
+        var nodeEnter = treeNode.enter().append("g")
+            .attr("class", d => `tree-node tree-node-${d.id}`) // Assign class based on ID
+            .attr("transform", d => `translate(${d.y},${d.x})`)
+            .on("click", toggleNode);
+
+        nodeEnter.append("circle")
+            .attr("r", 15)
+            .attr("fill", "lightblue");
+
+        nodeEnter.append("text")
+            .attr("dx", 20)
+            .attr("dy", 5);
+
+        treeNode.attr("transform", d => `translate(${d.y},${d.x})`);
+
+        // Update node text for expansion state
+        treeNode.select("text")
+            .text(d => (d._children ? "[+] " : d.children ? "[-] " : "") + d.name);
+
+        // Show/hide nodes properly
+        treeNode.style("display", d => (d.hidden ? "none" : "block"));
+
+        treeNode.exit().remove();
+
+        // Ensure highlight remains
+        d3.selectAll(".tree-node circle").attr("fill", "lightblue"); // Reset color
+        if (currentHighlightedNode) highlightTreeNode(currentHighlightedNode);
+    }
+
+    // Track highlighted node
+    let currentHighlightedNode = null;
+
+    function highlightTreeNode(nodeId) {
+        let correctedId = "node_" + nodeId; // Add "node_" prefix if missing
+        let nodeSelection = d3.select(".tree-node-" + correctedId);
+
+        nodeSelection.select("circle")
+            .transition().duration(200)
+            .attr("fill", "red");
+    }
+
+
+    // Function to remove highlight from a tree node
+    function unhighlightTreeNode(nodeId) {
+        d3.selectAll(".tree-node-node_" + nodeId + " circle").transition().duration(200).attr("fill", "lightblue");
+    }
+
+    function toggleNode(d) {
+        if (d.children) {
+            d._collapsed = true;
+            d._children = d.children;
+            d.children = null;
+        } else if (d._children) {
+            d._collapsed = false;
+            d.children = d._children;
+            d._children = null;
+        }
+
+        // Ensure children are properly hidden or shown
+        if (d.children) {
+            d.children.forEach(child => child.hidden = false);
+        } else if (d._children) {
+            d._children.forEach(child => child.hidden = true);
+        }
+
+        updateTree();
+    }
+
+    updateTree();
+
 
     // Compute graph bounds for scaling in Bird View
     var minX = d3.min(data.nodes, d => d.x);
@@ -89,7 +211,7 @@
     node.append("text")
         .attr("dx", 12)
         .attr("dy", 4)
-        .text(d => d.id)
+        .text(d => d.name)
         .style("font-size", "12px");
 
     function tick() {
@@ -107,6 +229,9 @@
         d3.selectAll(".main-node-" + d.id + " circle").transition().duration(200).attr("fill", "red");
         d3.selectAll(".bird-node-" + d.id).transition().duration(200).attr("fill", "red");
 
+        // Highlight in tree view
+        highlightTreeNode(d.id);
+
         d3.select("body").append("div")
             .attr("id", "tooltip")
             .style("position", "absolute")
@@ -121,6 +246,10 @@
     function hideDetails(d) {
         d3.selectAll(".main-node-" + d.id + " circle").transition().duration(200).attr("fill", "blue");
         d3.selectAll(".bird-node-" + d.id).transition().duration(200).attr("fill", "blue");
+
+        // Remove highlight in tree view
+        unhighlightTreeNode(d.id);
+
         d3.select("#tooltip").remove();
     }
 
