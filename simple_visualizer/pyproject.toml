@@ -17,3 +17,5 @@ visualizer_simple = "graph.simple.plugin:SimpleVisualizer"
 
 [tool.setuptools]
 provides = ["plugin"]
+py-modules = []
+packages = ["graph"]
