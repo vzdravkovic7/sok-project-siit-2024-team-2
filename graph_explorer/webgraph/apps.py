@@ -11,5 +11,4 @@ class ExplorerConfig(AppConfig):
     plugin_service = PluginService()
 
     def ready(self):
-        # On application start load all plugins
         self.plugin_service.load_plugins()

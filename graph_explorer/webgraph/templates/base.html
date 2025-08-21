@@ -4,46 +4,107 @@
     <meta charset="UTF-8">
     {% load static %}
     <script type="text/javascript" src="{% static 'd3.v3.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'style.css' %}"/>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
     <title>{{ title }}</title>
     {% block head_content %}{% endblock %}
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
 <div class="page">
-      <div class="header">
-          <div>
-              <a href="{% url 'index' %}">Graph Explorer</a>
-          </div>
-          <div>
-              {% if datasource_plugins %}
-                 {% for p in datasource_plugins %}
+    <div class="header glass">
+        <div class="logo">
+            <a href="{% url 'index' %}">Graph Explorer</a>
+        </div>
+        <div class="menu">
+            {% if datasource_plugins %}
+                {% for p in datasource_plugins %}
                     <a href="{% url 'datasource_plugin' id=p.identifier %}">{{ p.name }}</a>
-                 {% endfor %}
-              {% else %}
-                <h3>No recognized data source plugins</h3>
-              {% endif %}
-          </div>
-      </div>
-      <div class="left">
-          <div>
-              {% if visualizer_plugins %}
-                 {% for p in visualizer_plugins %}
+                {% endfor %}
+            {% else %}
+                <span>No data sources</span>
+            {% endif %}
+
+            {% if visualizer_plugins %}
+                {% for p in visualizer_plugins %}
                     <a href="{% url 'visualizer_plugin' id=p.identifier %}">{{ p.name }}</a>
-                 {% endfor %}
-              {% else %}
-                <h3>No recognized visualizer plugins</h3>
-              {% endif %}
-          </div>
-          <ul>
-              <li>
-                  <a href="{% url 'graph_layout' %}">Graph Layout</a>
-              </li>
-          </ul>
-          {% block links %}{% endblock %}
-      </div>
-      <div class="center">
-          {% block content %}{% endblock %}
-      </div>
+                {% endfor %}
+            {% else %}
+                <span>No visualizers</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="sidebar glass">
+            <ul>
+                <li><a href="{% url 'graph_layout' %}">Graph Layout</a></li>
+            </ul>
+            {% block links %}{% endblock %}
+        </div>
+
+        <div class="content">
+            <div class="controls glass card">
+            <h3>Upload</h3>
+            <form action="{% url 'upload_json' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="upload">Upload File</label>
+                <input type="file" name="json_file" accept=".json">
+                <div class="buttons">
+                    <button type="submit" class="btn primary">Upload</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="controls glass card">
+            <h3>Search & Filter</h3>
+            <form action="{% url 'query_graph' %}" method="post">
+                {% csrf_token %}
+
+                <label for="search">Search Graph</label>
+                <input type="text" id="search" name="search" placeholder="Enter node ID or value">
+
+                <label for="filter1">Attribute</label>
+                <input type="text" id="filter1" name="filter1">
+
+                <label for="operator">Operator</label>
+                <select id="operator" name="operator">
+                    <option value="==">==</option>
+                    <option value="!=">!=</option>
+                    <option value=">">&gt;</option>
+                    <option value=">=">&gt;=</option>
+                    <option value="<">&lt;</option>
+                    <option value="<=">&lt;=</option>
+                </select>
+
+                <label for="filter2">Value</label>
+                <input type="text" id="filter2" name="filter2">
+
+                <div class="buttons">
+                    <button type="submit" class="btn primary">Apply</button>
+                    <a href="{% url 'reset_graph' %}" class="btn secondary">Reset</a>
+                </div>
+            </form>
+            <div class="active-filters glass card">
+                <h4>Active Queries</h4>
+                <div class="chips">
+                    {% for s in request.session.searches %}
+                    <span class="chip">Search: "{{ s }}"
+                        <a href="{% url 'remove_search' forloop.counter0 %}">&times;</a>
+                    </span>
+                    {% endfor %}
+                    {% for f in request.session.filters %}
+                    <span class="chip">Filter: {{ f.attr }} {{ f.op }} {{ f.val }}
+                        <a href="{% url 'remove_filter' forloop.counter0 %}">&times;</a>
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="active-filters glass card">
+
+        {% block content %}{% endblock %}
+        </div>
+    </div>
 </div>
 </body>
 </html>
