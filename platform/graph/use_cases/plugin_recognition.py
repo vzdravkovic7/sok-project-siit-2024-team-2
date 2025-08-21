@@ -1,4 +1,3 @@
-import importlib
 import pkg_resources
 from typing import Dict, List, Type
 
@@ -7,14 +6,12 @@ from graph.api.services.plugin import DataSourcePlugin, VisualizerPlugin
 DATASOURCE_GROUP = "graph.datasource"
 VISUALIZER_GROUP = "graph.visualizer"
 
-
 class PluginService:
     def __init__(self):
         self.plugins: Dict[str, List] = {
             DATASOURCE_GROUP: [],
             VISUALIZER_GROUP: []
         }
-        self.load_plugins()
 
     def load_plugins(self):
         self.plugins[DATASOURCE_GROUP] = self._load_plugins(DATASOURCE_GROUP, DataSourcePlugin)

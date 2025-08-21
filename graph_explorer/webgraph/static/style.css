@@ -1,41 +1,199 @@
-svg {
-  border: 1px black solid;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-.left {
-  margin: 0px;
-  float: left;
-  width: 30%;
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #ffffff;
+  color: #222;        
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;  
 }
 
-.header, .footer {
-  background-color: lightblue;
-  clear: left;
-  width: 100%;
-  border: solid black 1px;
+a {
+  color: #0078ff;
+  text-decoration: none;
 }
 
-.center {
-  margin-left: 30%;
-  width: 70%;
-  border-left: solid black 1px;
+a:hover {
+  color: #0056cc;
+}
+
+.glass {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
 }
 
 .page {
-  text-align: center;
-  margin: auto;
-  min-width: 50%;
-  width: 80%;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-table {
-  margin: 0 auto;
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  background: #fff;
 }
 
-.label {
-  clear: left;
+.header .logo a {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #0078ff;
 }
 
-.greska {
-  color: red;
+.header .menu a {
+  margin-left: 1.5rem;
+  font-weight: 500;
+  color: #444;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  padding: 1rem;
+  gap: 1rem;
+  background: #f9f9f9;
+}
+
+.sidebar {
+  width: 240px;
+  padding: 1rem;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar ul li {
+  margin: 1rem 0;
+}
+
+.sidebar ul li a {
+  font-size: 1rem;
+  padding: 0.6rem 1rem;
+  display: block;
+  border-radius: 8px;
+  transition: 0.3s;
+  color: #333;
+}
+
+.sidebar ul li a:hover {
+  background: #f0f0f0;
+}
+
+.content {
+  flex: 1;
+}
+
+.card {
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  background: #fff;
+  border-radius: 12px;
+}
+
+.card:last-child {
+  margin-bottom: 0px;
+}
+
+.controls h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.controls label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.controls input,
+.controls select {
+  width: 100%;
+  padding: 0.7rem;
+  margin-top: 0.3rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #222;
+}
+
+.controls input:focus,
+.controls select:focus {
+  outline: none;
+  border: 1px solid #0078ff;
+  box-shadow: 0 0 6px rgba(0,120,255,0.3);
+}
+
+.buttons {
+  margin: 1.5rem 0;
+  display: flex;
+  gap: 1rem;
+}
+
+.btn {
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, #0078ff, #00e0ff);
+  color: white;
+}
+
+.btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,120,255,0.3);
+}
+
+.btn.secondary {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.btn.secondary:hover {
+  background: #e0e0e0;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip {
+  background: #e0f0ff;
+  border-radius: 20px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.chip a {
+  margin-left: 0.5rem;
+  color: #0078ff;
+  font-weight: bold;
+  text-decoration: none;
 }
