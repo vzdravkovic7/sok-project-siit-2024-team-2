@@ -40,8 +40,11 @@ class SimpleVisualizer(VisualizerPlugin):
         """
         Converts the graph into a structured format for visualization.
         """
-        nodes = [{"id": node.node_id, "name": str(node.values), "x": float(node.x), "y": float(node.y)} for node in graph.nodes]
-        edges = [{"from": edge.from_node.node_id, "to": edge.to_node.node_id, "weight": edge.weight} for edge in graph.edges]
+        nodes = [{"id": node.node_id, "name": str(node.value), "x": float(node.x), "y": float(node.y)} for node in graph.nodes]
+        edges = [
+            {"from": edge.from_node.node_id, "to": edge.to_node.node_id, "weight": edge.weight}
+            for edge in graph.edges if edge.to_node is not None
+        ]
 
         return {
             "nodes": nodes,
@@ -72,10 +75,14 @@ class SimpleVisualizer(VisualizerPlugin):
 
             children = []
             for edge in graph.edges:
+                if edge.to_node is None:
+                    continue
+
                 if edge.from_node.node_id == node.node_id and edge.to_node.node_id not in visited:
                     child_tree = build_tree(edge.to_node, visited)
-                    if child_tree:  # Only add valid children
+                    if child_tree:
                         children.append(child_tree)
+
 
             return {
                 "id": f"node_{node.node_id}",
@@ -97,8 +104,10 @@ class SimpleVisualizer(VisualizerPlugin):
         # Add any unvisited nodes to the tree as children of the starting node
         visited_nodes = {start_node.node_id}
         for edge in graph.edges:
-            visited_nodes.add(edge.from_node.node_id)
-            visited_nodes.add(edge.to_node.node_id)
+            if edge.from_node is not None:
+                visited_nodes.add(edge.from_node.node_id)
+            if edge.to_node is not None:
+                visited_nodes.add(edge.to_node.node_id)
 
         for node in graph.nodes:
             if node.node_id not in visited_nodes:
