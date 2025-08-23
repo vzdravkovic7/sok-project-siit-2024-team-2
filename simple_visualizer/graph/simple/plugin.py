@@ -40,7 +40,7 @@ class SimpleVisualizer(VisualizerPlugin):
         """
         Converts the graph into a structured format for visualization.
         """
-        nodes = [{"id": node.node_id, "name": str(node.value), "x": float(node.x), "y": float(node.y)} for node in graph.nodes]
+        nodes = [{"id": node.node_id, "name": str(node.values), "x": float(node.x), "y": float(node.y)} for node in graph.nodes]
         edges = [{"from": edge.from_node.node_id, "to": edge.to_node.node_id, "weight": edge.weight} for edge in graph.edges]
 
         return {
@@ -79,7 +79,7 @@ class SimpleVisualizer(VisualizerPlugin):
 
             return {
                 "id": f"node_{node.node_id}",
-                "name": str(node.value),
+                "name": str(node.values),
                 "children": children
             }
 
@@ -90,7 +90,7 @@ class SimpleVisualizer(VisualizerPlugin):
             # If no tree data was created (i.e., no children were found), create a base tree
             tree_data = {
                 "id": f"node_{start_node.node_id}",
-                "name": str(start_node.value),
+                "name": str(start_node.values),
                 "children": []
             }
 
@@ -104,7 +104,7 @@ class SimpleVisualizer(VisualizerPlugin):
             if node.node_id not in visited_nodes:
                 tree_data["children"].append({
                     "id": f"node_{node.node_id}",
-                    "name": str(node.value),
+                    "name": str(node.values),
                     "children": []
                 })
 

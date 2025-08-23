@@ -32,7 +32,7 @@ def graph_layout(request):
     visualizer_plugins = plugin_service.plugins[visualizer_group]
 
     graph_view = MainView(plugin_service)
-    header, body = graph_view.render(selected_datasource_plugin, selected_visualizer_plugin)
+    header, body = graph_view.render(selected_datasource_plugin, selected_visualizer_plugin, file_path="D:\Program Files (x86)\Fakultet\III godina - Zimski semestar\Softverski obrasci i komponente\Projekat\sok-project-siit-2024-team-2\data\cyclic_graph.xml")
 
     return render(request, 'graph-simple-layout.html',
                   {'title': 'Graph Layout',
