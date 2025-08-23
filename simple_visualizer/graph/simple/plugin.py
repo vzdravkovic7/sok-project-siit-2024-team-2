@@ -86,7 +86,7 @@ class SimpleVisualizer(VisualizerPlugin):
 
             return {
                 "id": f"node_{node.node_id}",
-                "name": str(node.value),
+                "name": str(node.values),
                 "children": children
             }
 
@@ -97,7 +97,7 @@ class SimpleVisualizer(VisualizerPlugin):
             # If no tree data was created (i.e., no children were found), create a base tree
             tree_data = {
                 "id": f"node_{start_node.node_id}",
-                "name": str(start_node.value),
+                "name": str(start_node.values),
                 "children": []
             }
 
@@ -113,7 +113,7 @@ class SimpleVisualizer(VisualizerPlugin):
             if node.node_id not in visited_nodes:
                 tree_data["children"].append({
                     "id": f"node_{node.node_id}",
-                    "name": str(node.value),
+                    "name": str(node.values),
                     "children": []
                 })
 
