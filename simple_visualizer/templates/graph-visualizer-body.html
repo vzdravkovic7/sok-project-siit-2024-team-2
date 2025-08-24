@@ -10,19 +10,19 @@
     </div>
 
     <!-- Bottom section: Tree View -->
-    <div id="tree-view" style="flex: 1; overflow-y: auto; overflow-x: auto; border-top: 1px solid #ccc; width:80vw;"></div>
+    <div id="tree-view" style="flex: 1; overflow-y: auto; overflow-x: auto; border-top: 1px solid #ccc; width:80vw;">
+    </div>
 </div>
 
 <script src="https://d3js.org/d3.v3.min.js"></script>
 <script>
-    var data = {{ data_json|safe }};
+    var data = {{ data_json| safe }};
     var width = 500, height = 500;
     var birdWidth = 200, birdHeight = 200;
 
-    var treeData = {{ tree_data_json|safe }};
-    var treeWidth = 500, treeHeight = 1000;
+    var treeData = {{ tree_data_json| safe }};
+    var treeWidth = 500, treeHeight = 2000;
 
-    // Modify tree layout size and increase separation between nodes
     var treeLayout = d3.layout.tree().size([treeHeight, treeWidth * 2]).nodeSize([30, 90]);
 
     var treeSvg = d3.select("#tree-view").append("svg")
@@ -31,8 +31,107 @@
         .append("g")
         .attr("transform", "translate(50,500)");
 
+    // Build adjacency map from directed edges (node -> friend)
+    const adjacency = (() => {
+        const m = new Map();
+        (data.edges || []).forEach(e => {
+            if (!m.has(e.from)) m.set(e.from, []);
+            m.get(e.from).push(e.to);
+        });
+        return m;
+    })();
+
+    // Collect all unique node IDs
+    const allNodeIds = Array.from(
+        new Set([...adjacency.keys(), ...[].concat(...adjacency.values())])
+    );
+
+    function buildComponents(nodes, adjacency) {
+        let visited = new Set();
+        let components = [];
+
+        function dfs(start) {
+            let stack = [start];
+            let comp = [];
+            while (stack.length) {
+                let node = stack.pop();
+                if (visited.has(node)) continue;
+                visited.add(node);
+                comp.push(node);
+                let neighbors = adjacency.get(node) || [];
+                neighbors.forEach(n => {
+                    if (!visited.has(n)) stack.push(n);
+                });
+            }
+            return comp;
+        }
+
+        nodes.forEach(n => {
+            if (!visited.has(n)) {
+                components.push(dfs(n));
+            }
+        });
+
+        return components;
+    }
+
+    const components = buildComponents(allNodeIds, adjacency);
+
+    let __uidSeq = 0;
+    function genUid(seed = "n") { __uidSeq += 1; return seed + "__u" + __uidSeq; }
+
+    function baseId(d) {
+        if (d.baseId) return d.baseId;
+        if (typeof d.id === "string" && d.id.indexOf("node_") === 0) return d.id.slice(5);
+        return d.id;
+    }
+
+    // Lazy child creation from adjacency
+    function materializeChildren(node) {
+        const neighbors = adjacency.get(baseId(node)) || [];
+        node.children = neighbors.map(nId => ({
+            id: "node_" + nId,
+            baseId: nId,
+            uid: genUid(nId),
+            hidden: false
+        }));
+    }
+
+    // Collapse all children of a node
+    function collapseAll(node) {
+        if (node.children) {
+            node._children = node.children;
+            node._children.forEach(child => {
+                child.hidden = true;
+                collapseAll(child);
+            });
+            node.children = null;
+        }
+    }
+
+    const forestRoot = {
+        id: "forest_root",
+        uid: genUid("forest"),
+        hidden: true,
+        children: treeData.map(rootNode => ({
+            ...rootNode,
+            uid: genUid(rootNode.id),
+            hidden: false
+        }))
+    };
+
+    forestRoot.children.forEach(collapseAll);
+
+    // Helper to know if a node can expand (for showing “[+]” before it has _children)
+    function hasExpandableChildren(d) {
+        if (d.children && d.children.length) return true;
+        if (d._children && d._children.length) return true;
+        const nbrs = adjacency.get(baseId(d)) || [];
+        return nbrs.length > 0;
+    }
+
     function updateTree() {
-        var nodes = treeLayout.nodes(treeData);
+        var nodes = treeLayout.nodes(forestRoot);
         var links = treeLayout.links(nodes);
 
         var maxDepth = d3.max(nodes, d => d.depth) || 0;
@@ -44,7 +143,7 @@
 
         // Update links
         var treeLink = treeSvg.selectAll(".tree-link")
-            .data(links, d => d.target.id);
+            .data(links, d => d.target.uid);
 
         treeLink.enter().append("line")
             .attr("class", "tree-link")
@@ -59,10 +158,10 @@
 
         // Update nodes
         var treeNode = treeSvg.selectAll(".tree-node")
-            .data(nodes, d => d.id);
+            .data(nodes, d => d.uid);
 
         var nodeEnter = treeNode.enter().append("g")
-            .attr("class", d => `tree-node tree-node-${d.id}`) // Assign class based on ID
+            .attr("class", d => `tree-node tree-node-${d.id} tree-node-uid-${d.uid}`)
             .attr("transform", d => `translate(${d.y},${d.x})`)
             .on("click", toggleNode);
 
@@ -78,7 +177,10 @@
 
         // Update node text for expansion state
         treeNode.select("text")
-            .text(d => (d._children ? "[+] " : d.children ? "[-] " : "") + d.name);
+            .text(d => {
+                const prefix = d.children ? "[-] " : (hasExpandableChildren(d) ? "[+] " : "");
+                return prefix + d.id;
+            });
 
         // Show/hide nodes properly
         treeNode.style("display", d => (d.hidden ? "none" : "block"));
@@ -86,7 +188,7 @@
         treeNode.exit().remove();
 
         // Ensure highlight remains
-        d3.selectAll(".tree-node circle").attr("fill", "lightblue"); // Reset color
+        d3.selectAll(".tree-node circle").attr("fill", "lightblue");
         if (currentHighlightedNode) highlightTreeNode(currentHighlightedNode);
     }
 
@@ -94,7 +196,7 @@
     let currentHighlightedNode = null;
 
     function highlightTreeNode(nodeId) {
-        let correctedId = "node_" + nodeId; // Add "node_" prefix if missing
+        let correctedId = "node_" + nodeId;
         let nodeSelection = d3.select(".tree-node-" + correctedId);
 
         nodeSelection.select("circle")
@@ -105,27 +207,25 @@
 
     // Function to remove highlight from a tree node
     function unhighlightTreeNode(nodeId) {
-        d3.selectAll(".tree-node-node_" + nodeId + " circle").transition().duration(200).attr("fill", "lightblue");
+        d3.selectAll(".tree-node-node_" + nodeId + " circle")
+            .transition().duration(200)
+            .attr("fill", "lightblue");
     }
 
     function toggleNode(d) {
-        if (d.children) {
-            d._collapsed = true;
+        if (d.children && d.children.length) {
             d._children = d.children;
-            d.children = null;
-        } else if (d._children) {
-            d._collapsed = false;
-            d.children = d._children;
-            d._children = null;
-        }
-
-        // Ensure children are properly hidden or shown
-        if (d.children) {
-            d.children.forEach(child => child.hidden = false);
-        } else if (d._children) {
             d._children.forEach(child => child.hidden = true);
+            d.children = null;
+        } else {
+            if (d._children && d._children.length) {
+                d.children = d._children;
+                d.children.forEach(child => child.hidden = false);
+                d._children = null;
+            } else {
+                materializeChildren(d);
+            }
         }
-
         updateTree();
     }
 
@@ -151,6 +251,19 @@
         .attr("height", height);
 
     var container = svg.append("g");
+
+    // Arrow marker
+    svg.append("defs").append("marker")
+        .attr("id", "arrow")
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 20)  // how far from the node center the arrow tip should be
+        .attr("refY", 0)
+        .attr("markerWidth", 6)
+        .attr("markerHeight", 6)
+        .attr("orient", "auto")
+        .append("path")
+        .attr("d", "M0,-5L10,0L0,5") // arrow shape
+        .attr("fill", "#9ecae1");
 
     var zoom = d3.behavior.zoom()
         .scaleExtent([0.5, 2])
@@ -180,7 +293,8 @@
         .enter().append("line")
         .attr("class", "link")
         .attr("stroke-width", 2)
-        .attr("stroke", "#9ecae1");
+        .attr("stroke", "#9ecae1")
+        .attr("marker-end", "url(#arrow)");
 
     var node = container.selectAll(".node")
         .data(data.nodes)
@@ -211,7 +325,7 @@
     node.append("text")
         .attr("dx", 12)
         .attr("dy", 4)
-        .text(d => d.name)
+        .text(d => d.id)
         .style("font-size", "12px");
 
     function tick() {
@@ -240,7 +354,7 @@
             .style("border-radius", "5px")
             .style("left", `${d3.event.pageX + 10}px`)
             .style("top", `${d3.event.pageY - 20}px`)
-            .text(`ID: ${d.id}, Name: ${d.name}`);
+            .text(`ID: ${d.id}`);
     }
 
     function hideDetails(d) {
@@ -286,12 +400,12 @@
 
     function updateBirdView() {
         birdNode.attr("cx", d => (d.x - minX) * scaleFactor + offsetX)
-                .attr("cy", d => (d.y - minY) * scaleFactor + offsetY);
+            .attr("cy", d => (d.y - minY) * scaleFactor + offsetY);
 
         birdLink.attr("x1", d => (d.source.x - minX) * scaleFactor + offsetX)
-                .attr("y1", d => (d.source.y - minY) * scaleFactor + offsetY)
-                .attr("x2", d => (d.target.x - minX) * scaleFactor + offsetX)
-                .attr("y2", d => (d.target.y - minY) * scaleFactor + offsetY);
+            .attr("y1", d => (d.source.y - minY) * scaleFactor + offsetY)
+            .attr("x2", d => (d.target.x - minX) * scaleFactor + offsetX)
+            .attr("y2", d => (d.target.y - minY) * scaleFactor + offsetY);
 
         var mainTransform = d3.transform(container.attr("transform"));
         var tx = -mainTransform.translate[0] * scaleFactor + offsetX;
@@ -299,8 +413,8 @@
         var s = mainTransform.scale[0];
 
         birdViewport.attr("x", tx)
-                    .attr("y", ty)
-                    .attr("width", (width / s) * scaleFactor)
-                    .attr("height", (height / s) * scaleFactor);
+            .attr("y", ty)
+            .attr("width", (width / s) * scaleFactor)
+            .attr("height", (height / s) * scaleFactor);
     }
 </script>
