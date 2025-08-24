@@ -17,8 +17,12 @@ class MainView(object):
             return "", ""
         
         request = kwargs.get("request")
-        if request and not request.session.get("searches") and not request.session.get("filters") and "reset" in request.GET:
-            return "", ""
+        workspace = kwargs.get("workspace")
+
+        if not workspace and request:
+            workspace_id = request.GET.get("workspace_id", "default")
+            all_workspaces = request.session.get("workspaces", {})
+            workspace = all_workspaces.get(workspace_id, {"searches": [], "filters": []})
 
         datasource_plugins = self.__plugin_service.plugins.get(DATASOURCE_GROUP, [])
         graph = None
@@ -27,18 +31,17 @@ class MainView(object):
             if plugin.identifier() == datasource_id:
                 try:
                     clean_kwargs = {k: v for k, v in kwargs.items() if v is not None}
-                    request = kwargs.get("request")
-                    print("REQUEST:", clean_kwargs)
                     graph = plugin.load(**clean_kwargs)
-                    if request:
-                        query = request.session.get("searches")
-                        if query:
-                            graph = SearchService.search(graph, query)
 
-                        filters = request.session.get("filters")
+                    if workspace:
+                        searches = workspace.get("searches", [])
+                        if searches:
+                            graph = SearchService.search(graph, searches)
+
+                        filters = workspace.get("filters", [])
                         if filters:
                             graph = FilterService.apply_filters(graph, filters)
-                            
+
                 except Exception as e:
                     print("Datasource plugin error:", e)
                     return "<h3>Error loading graph</h3>", ""
