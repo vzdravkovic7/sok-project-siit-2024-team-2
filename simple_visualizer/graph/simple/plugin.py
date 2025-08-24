@@ -51,38 +51,34 @@ class SimpleVisualizer(VisualizerPlugin):
             "edges": edges
         }
 
-    def __generate_tree_data(self, graph: Graph) -> dict:
+    def __generate_tree_data(self, graph: Graph) -> list[dict]:
         """
-        Converts the graph into a hierarchical tree format without infinite recursion.
-        Ensures that all nodes are included, even if they are not directly connected.
+        Converts the graph into a forest of hierarchical trees without infinite recursion.
+        Ensures that all nodes are included, even if they are isolated or in disconnected components.
         """
 
         if not graph.nodes:
-            return {}  # No nodes in the graph
+            return []
 
-        # Randomly select a starting node
-        start_node = random.choice(graph.nodes)
+        # Build adjacency list
+        adjacency = {node.node_id: [] for node in graph.nodes}
+        for edge in graph.edges:
+            if edge.from_node and edge.to_node:
+                adjacency[edge.from_node.node_id].append(edge.to_node)
 
-        def build_tree(node: Node, visited: set):
-            """
-            Recursively build the tree structure from a given node.
-            Uses the same visited set throughout recursion to prevent cycles efficiently.
-            """
+        def build_tree(node: Node, visited: set) -> dict:
+            """ Recursively build the tree structure from a given node. """
             if node.node_id in visited:
-                return None  # Skip nodes already visited (prevents infinite loops)
+                return None
 
             visited.add(node.node_id)
-
             children = []
-            for edge in graph.edges:
-                if edge.to_node is None:
-                    continue
 
-                if edge.from_node.node_id == node.node_id and edge.to_node.node_id not in visited:
-                    child_tree = build_tree(edge.to_node, visited)
+            for child_node in adjacency.get(node.node_id, []):
+                if child_node.node_id not in visited:
+                    child_tree = build_tree(child_node, visited)
                     if child_tree:
                         children.append(child_tree)
-
 
             return {
                 "id": f"node_{node.node_id}",
@@ -90,31 +86,23 @@ class SimpleVisualizer(VisualizerPlugin):
                 "children": children
             }
 
-        # Use a single visited set to avoid slow deep copies
-        tree_data = build_tree(start_node, set())
+        visited = set()
+        forest = []
 
-        if not tree_data:
-            # If no tree data was created (i.e., no children were found), create a base tree
-            tree_data = {
-                "id": f"node_{start_node.node_id}",
-                "name": str(start_node.value),
-                "children": []
-            }
-
-        # Add any unvisited nodes to the tree as children of the starting node
-        visited_nodes = {start_node.node_id}
-        for edge in graph.edges:
-            if edge.from_node is not None:
-                visited_nodes.add(edge.from_node.node_id)
-            if edge.to_node is not None:
-                visited_nodes.add(edge.to_node.node_id)
-
+        # Build a tree for each connected component
         for node in graph.nodes:
-            if node.node_id not in visited_nodes:
-                tree_data["children"].append({
+            if node.node_id not in visited:
+                tree = build_tree(node, visited)
+                if tree:
+                    forest.append(tree)
+
+        # If no edges, isolated nodes should still appear as single-node trees
+        for node in graph.nodes:
+            if all(node.node_id != t["id"].replace("node_", "") for t in forest):
+                forest.append({
                     "id": f"node_{node.node_id}",
                     "name": str(node.value),
                     "children": []
                 })
 
-        return tree_data
+        return forest

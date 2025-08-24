@@ -19,6 +19,7 @@
             "age": 68,
             "city": "Madrid",
             "friends": [
+                "7673123a-f1cd-408f-bbd9-9663588a5453",
                 "733b4fdf-7420-4e55-9006-a0db853afb53",
                 "14921138-709b-421d-b4bd-300aa0f1a5eb",
                 "2ea54c9b-c96d-4450-a8c2-b745d2f0ce75",
@@ -103,6 +104,7 @@
             "age": 64,
             "city": "Belgrade",
             "friends": [
+                "5e6665d8-621e-4239-ab99-83a4171cbf37",
                 "373e8a4e-ec47-4855-8348-02a265737ba7",
                 "0a07c6e5-f50b-4070-94ed-1192e57be736",
                 "fefaf6df-9a04-4d3f-8daf-315288a12492"
