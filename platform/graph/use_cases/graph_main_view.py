@@ -1,5 +1,8 @@
 import os
+
 from .const import DATASOURCE_GROUP, VISUALIZER_GROUP
+from graph.use_cases.search_service import SearchService
+from graph.use_cases.filter_service import FilterService
 from .plugin_recognition import PluginService
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "../../../simple_visualizer/templates")
@@ -25,10 +28,17 @@ class MainView(object):
                 try:
                     clean_kwargs = {k: v for k, v in kwargs.items() if v is not None}
                     request = kwargs.get("request")
-                    if request:
-                        clean_kwargs["searches"] = request.session.get("searches", [])
-                        clean_kwargs["filters"] = request.session.get("filters", [])
+                    print("REQUEST:", clean_kwargs)
                     graph = plugin.load(**clean_kwargs)
+                    if request:
+                        query = request.session.get("searches")
+                        if query:
+                            graph = SearchService.search(graph, query)
+
+                        filters = request.session.get("filters")
+                        if filters:
+                            graph = FilterService.apply_filters(graph, filters)
+                            
                 except Exception as e:
                     print("Datasource plugin error:", e)
                     return "<h3>Error loading graph</h3>", ""

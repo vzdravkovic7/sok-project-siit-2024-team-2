@@ -6,6 +6,7 @@ from graph.use_cases.plugin_recognition import PluginService
 from graph.use_cases.graph_main_view import MainView
 from .apps import datasource_group, visualizer_group
 
+
 def index(request):
     plugin_service: PluginService = apps.get_app_config('webgraph').plugin_service
     datasource_plugins = plugin_service.plugins[datasource_group]
@@ -30,7 +31,7 @@ def visualizer_plugin(request, id):
 def graph_layout(request):
     selected_datasource_plugin = request.session.get('selected_datasource_plugin')
     selected_visualizer_plugin = request.session.get('selected_visualizer_plugin')
-    selected_file = request.session.get("selected_json_file", None)
+    selected_file = request.session.get("selected_file", None)
 
     plugin_service: PluginService = apps.get_app_config('webgraph').plugin_service
     datasource_plugins = plugin_service.plugins[datasource_group]
@@ -41,7 +42,7 @@ def graph_layout(request):
     header, body = graph_view.render(
         selected_datasource_plugin,
         selected_visualizer_plugin,
-        file_name=selected_file,
+        file_path=selected_file,
         request=request,
     )
 
@@ -54,13 +55,13 @@ def graph_layout(request):
     })
 
 
-def upload_json(request):
+def upload_file(request):
     if request.method == "POST":
-        if "json_file" not in request.FILES:
+        if "data_file" not in request.FILES:
             return HttpResponse(
-                    "<script>alert('No JSON file selected!'); window.location.href='/layout/simple';</script>"
-                )
-        uploaded_file = request.FILES["json_file"]
+                "<script>alert('No file selected!'); window.location.href='/layout/simple';</script>"
+            )
+        uploaded_file = request.FILES["data_file"]
 
         upload_dir = "uploads"
         os.makedirs(upload_dir, exist_ok=True)
@@ -71,15 +72,18 @@ def upload_json(request):
             for chunk in uploaded_file.chunks():
                 dest.write(chunk)
 
-        request.session["selected_json_file"] = file_path
+        # čuvamo putanju bez obzira na tip
+        request.session["selected_file"] = file_path
         return redirect("graph_layout")
 
     return render(request, "upload.html")
+
 
 def reset_graph(request):
     request.session.pop("filters", None)
     request.session.pop("searches", None)
     return redirect("graph_layout")
+
 
 def remove_filter(request, index):
     filters = request.session.get("filters", [])
@@ -88,12 +92,14 @@ def remove_filter(request, index):
         request.session["filters"] = filters
     return redirect("graph_layout")
 
+
 def remove_search(request, index):
     searches = request.session.get("searches", [])
     if 0 <= index < len(searches):
         searches.pop(index)
         request.session["searches"] = searches
     return redirect("graph_layout")
+
 
 def query_graph(request):
     if request.method == "POST":

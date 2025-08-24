@@ -45,10 +45,10 @@
         <div class="content">
             <div class="controls glass card">
             <h3>Upload</h3>
-            <form action="{% url 'upload_json' %}" method="post" enctype="multipart/form-data">
+            <form action="{% url 'upload_file' %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <label for="upload">Upload File</label>
-                <input type="file" name="json_file" accept=".json">
+                <input type="file" name="data_file" accept="*">
                 <div class="buttons">
                     <button type="submit" class="btn primary">Upload</button>
                 </div>
