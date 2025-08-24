@@ -45,11 +45,12 @@ class JsonDatasource(DataSourcePlugin):
     def identifier(self) -> str:
         return "datasource_json"
 
-    def load(self, file_name: Optional[str] = None, folder_path: str = "", **kwargs ) -> JsonGraph:
-        if not file_name:
-            raise ValueError("JSON Datasource requires a file_name argument")
+    def load(self, **kwargs) -> JsonGraph:
+        file_path = kwargs.get("file_path")
 
-        file_path = os.path.join(folder_path, file_name) if folder_path else file_name
+        if not file_path:
+            raise ValueError("file_path must be provided in kwargs")
+
         with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 

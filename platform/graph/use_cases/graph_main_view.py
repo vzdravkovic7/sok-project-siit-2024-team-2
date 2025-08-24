@@ -28,6 +28,7 @@ class MainView(object):
                 try:
                     clean_kwargs = {k: v for k, v in kwargs.items() if v is not None}
                     request = kwargs.get("request")
+                    print("REQUEST:", clean_kwargs)
                     graph = plugin.load(**clean_kwargs)
                     if request:
                         query = request.session.get("searches")
