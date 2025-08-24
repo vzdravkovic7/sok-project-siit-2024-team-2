@@ -56,6 +56,10 @@ a:hover {
   color: #444;
 }
 
+.menu strong {
+  margin-left: 1.5rem;
+}
+
 .main {
   display: flex;
   flex: 1;
@@ -89,10 +93,6 @@ a:hover {
   border-radius: 8px;
   transition: 0.3s;
   color: #333;
-}
-
-.sidebar ul li a:hover {
-  background: #f0f0f0;
 }
 
 .content {
@@ -196,4 +196,82 @@ a:hover {
   color: #0078ff;
   font-weight: bold;
   text-decoration: none;
+}
+
+.workspace-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.workspace-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 0.8rem;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  transition: 0.3s;
+}
+
+.workspace-item a,
+.workspace-item strong {
+  font-size: 1rem;
+  color: #333;
+  flex-grow: 1;
+}
+
+.workspace-item.active {
+  background: #e8f3ff;
+  font-weight: 600;
+  color: #0078ff;
+}
+
+.workspace-item:hover {
+  background: #f5f5f5;
+}
+
+.inline-form {
+  margin: 0;
+}
+
+.delete-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  color: #888;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  transition: 0.2s;
+}
+
+.delete-btn:hover {
+  color: #e63946 !important;
+  transform: scale(1.2);
+}
+
+.add-workspace-form {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+.workspace-input {
+  width: 100%;
+  padding: 0.7rem;
+  margin-top: 0.3rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #222;
+}
+
+.workspace-add {
+  margin-top: 0.3rem;
+}
+
+.file-upload-container {
+  padding-bottom: 0;
 }

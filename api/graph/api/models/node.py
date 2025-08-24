@@ -6,9 +6,9 @@ import random
 GraphValue = Union[int, str, float, date]
 
 class Node(ABC):
-    def __init__(self, node_id: str, value: GraphValue, x: float = None, y: float = None):
+    def __init__(self, node_id: str, values: dict[str, GraphValue] = None, x: float = None, y: float = None):
         self._node_id = node_id
-        self._value = value
+        self._values: dict[str, GraphValue] = values if values is not None else {}
         self._x = x if x is not None else random.uniform(0, 1000)
         self._y = y if y is not None else random.uniform(0, 1000)
 
@@ -17,15 +17,17 @@ class Node(ABC):
         return self._node_id
 
     @property
-    def value(self) -> GraphValue:
-        return self._value
+    def values(self) -> dict[str, GraphValue]:
+        return self._values
 
-    @value.setter
-    def value(self, new_value: GraphValue):
-        if isinstance(new_value, (int, str, float, date)):
-            self._value = new_value
+    def set_value(self, key: str, value: GraphValue):
+        if isinstance(value, (int, str, float, date)):
+            self._values[key] = value
         else:
-            raise TypeError("Invalid value type")
+            raise TypeError("Value must be int, str, float or date")
+
+    def get_value(self, key: str) -> GraphValue:
+        return self._values.get(key)
 
     @property
     def x(self) -> float:
@@ -50,4 +52,4 @@ class Node(ABC):
             raise TypeError("y coordinate must be a number")
 
     def __str__(self):
-        return f"Node({self.node_id}, {self.value}, x={self.x}, y={self.y})"
+        return f"Node({self.node_id}, values={self._values}, x={self.x}, y={self.y})"
