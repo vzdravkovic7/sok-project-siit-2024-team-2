@@ -1,8 +1,10 @@
+Django==5.1.3
+jinja2==3.1.4
 python-dotenv
 setuptools
 
 -e ./api
 -e ./platform
--e ./data_source_plugin-json
--e ./data_source_plugin-xml
+-e ./data_source_plugin_json
+-e ./data_source_plugin_xml
 -e ./simple_visualizer

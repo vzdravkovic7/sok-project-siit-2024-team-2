@@ -1,13 +1,44 @@
 from graph.api.models import Node, Edge, Graph
 
 class GraphFactory:
-    """Factory class responsible for building Graph objects from raw entity data."""
+    """Factory class responsible for constructing Graph objects from raw entity data.
+
+    This class provides utilities to convert raw dictionaries representing entities
+    into a `Graph` object composed of `Node` and `Edge` instances. It expects that
+    each entity includes a unique identifier (`id`) and may contain references to
+    other entities, which are translated into directed edges.
+    """
 
     @staticmethod
     def from_entities(entities: list[dict], graph_class: type[Graph]) -> Graph:
-        """
-        Generic method to build a graph from a list of entity dictionaries.
-        Expects each entity to have 'id' and optional 'references'.
+        """Builds a graph from a list of entity dictionaries.
+
+        Each dictionary must contain an `"id"` key and may optionally contain
+        a `"references"` key, which should be a list of other entity IDs that
+        this entity points to. The method will create `Node` objects for each
+        entity and `Edge` objects for each reference.
+
+        Args:
+            entities (list[dict]): A list of entity data, where each entity is
+                represented as a dictionary with an `"id"` field and optionally
+                a `"references"` field.
+            graph_class (type[Graph]): The class used to instantiate the resulting
+                graph. Must be a subclass of `Graph`.
+
+        Returns:
+            Graph: A graph instance containing nodes and edges derived from the
+            provided entities.
+
+        Example:
+            >>> entities = [
+            ...     {"id": "1", "name": "Alice", "references": ["2"]},
+            ...     {"id": "2", "name": "Bob"}
+            ... ]
+            >>> graph = GraphFactory.from_entities(entities, Graph)
+            >>> len(graph.nodes)
+            2
+            >>> len(graph.edges)
+            1
         """
         graph = graph_class()
         node_map = {}

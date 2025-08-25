@@ -4,7 +4,6 @@ from .command import (
     DeleteEdgeCommand, ClearGraphCommand
 )
 
-
 def parse_command(cmd_str: str):
     tokens = cmd_str.strip().split()
     if not tokens:
