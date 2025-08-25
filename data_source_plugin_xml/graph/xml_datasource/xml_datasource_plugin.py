@@ -71,7 +71,7 @@ class XMLDataSourcePlugin(DataSourcePlugin):
             return None
 
         values = {
-            child.tag: child.text.strip()
+            child.tag: self._parse_value(child.text)
             for child in elem
             if not child.attrib and child.text and child.text.strip()
         }
@@ -135,3 +135,25 @@ class XMLDataSourcePlugin(DataSourcePlugin):
         self._collect_edges(root, graph, id_to_node)
 
         return graph
+
+    def _parse_value(self, value: str):
+        """Try to parse XML text into int, float, bool, or leave as str."""
+        if value is None:
+            return None
+
+        value = value.strip()
+
+        if value.lower() in ("true", "false"):
+            return value.lower() == "true"
+
+        try:
+            return int(value)
+        except ValueError:
+            pass
+
+        try:
+            return float(value)
+        except ValueError:
+            pass
+
+        return value
