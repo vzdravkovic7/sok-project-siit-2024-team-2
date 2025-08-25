@@ -129,3 +129,6 @@ Static and Media files configuration (if deploying in production).
 
 This project is licensed under the MIT License. See the LICENSE
  file for details.
+
+## UML Class Diagram
+<img width="1301" height="1151" alt="Class Diagram drawio" src="https://github.com/user-attachments/assets/bf3d9b73-b5e6-42eb-99fb-c4f1e8ad18e1" />
