@@ -1,0 +1,8 @@
+python-dotenv
+setuptools
+
+-e ./api
+-e ./platform
+-e ./data_source_plugin-json
+-e ./data_source_plugin-xml
+-e ./simple_visualizer
