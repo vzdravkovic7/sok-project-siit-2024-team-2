@@ -5,6 +5,25 @@ from .command import (
 )
 
 def parse_command(cmd_str: str):
+    """
+    Parse a command string and return the corresponding command object.
+
+    Supports commands for creating, editing, deleting nodes and edges,
+    as well as clearing the entire graph.
+
+    Args:
+        cmd_str (str): The command string entered by the user.
+
+    Returns:
+        Command|None: An instance of a Command subclass if the string
+        matches a known command; otherwise None.
+    
+    Examples:
+        parse_command("create node --id=1 --property name=Alice")
+        parse_command("edit node --id=1 --property age=30")
+        parse_command("delete edge 1 2")
+        parse_command("clear")
+    """
     tokens = cmd_str.strip().split()
     if not tokens:
         return None

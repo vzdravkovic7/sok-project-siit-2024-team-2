@@ -288,7 +288,24 @@ def delete_workspace(request, name):
         request.session.modified = True
     return redirect("index")
 
+from django.shortcuts import redirect
+
 def terminal_command(request):
+    """
+    Handle a terminal command submitted via POST request.
+
+    Supports:
+        - 'cls' to clear the terminal history.
+        - 'filter <conditions>' to add filter conditions to the active workspace.
+        - 'search <keyword>' to add search keywords to the active workspace.
+        - Any other command is stored in the CLI commands list of the workspace.
+
+    Args:
+        request (HttpRequest): Django HTTP request containing the command in POST data.
+
+    Returns:
+        HttpResponseRedirect: Redirects to the 'index' page after processing.
+    """
     if request.method != "POST":
         return redirect("index")
 
@@ -342,8 +359,18 @@ def terminal_command(request):
 
     return redirect("index")
 
+
 def clear_terminal(request):
+    """
+    Clear the terminal history stored in the session.
+
+    Args:
+        request (HttpRequest): Django HTTP request.
+
+    Returns:
+        HttpResponseRedirect: Redirects to the 'index' page after clearing.
+    """
     if "terminal_history" in request.session:
         request.session["terminal_history"] = []
         request.session.modified = True
-        return redirect("index")
+    return redirect("index")
