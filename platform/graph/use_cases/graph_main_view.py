@@ -3,6 +3,7 @@ import os
 from .const import DATASOURCE_GROUP, VISUALIZER_GROUP
 from graph.use_cases.search_service import SearchService
 from graph.use_cases.filter_service import FilterService
+from .executor import GraphCLI
 from .plugin_recognition import PluginService
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "../../../simple_visualizer/templates")
@@ -15,7 +16,7 @@ class MainView(object):
     def render(self, datasource_id: str, visualizer_id: str, **kwargs) -> (str, str):
         if not datasource_id or not visualizer_id:
             return "", ""
-        
+
         request = kwargs.get("request")
         workspace = kwargs.get("workspace")
 
@@ -41,6 +42,13 @@ class MainView(object):
                         filters = workspace.get("filters", [])
                         if filters:
                             graph = FilterService.apply_filters(graph, filters)
+
+                        cli_commands = workspace.get("cli_commands", [])
+                        if cli_commands:
+                            cli = GraphCLI(graph)
+                            for cmd in cli_commands:
+                                cli.run(cmd)
+                            graph = cli.graph
 
                 except Exception as e:
                     print("Datasource plugin error:", e)
