@@ -72,34 +72,27 @@
         </div>
 
         <div class="content">
-            <div class="controls glass card file-upload-container">
-            <form action="{% url 'upload_file' %}" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                {% if uploaded_file_name %}
-                    <label>Currently loaded: <strong>{{ uploaded_file_name }}</strong></label>
-                {% else %}
-                    <label for="upload">Upload File</label>
-                {% endif %}
-                <input type="file" name="data_file" accept="*">
-                <div class="buttons">
-                    <button type="submit" class="btn primary">Upload</button>
-                </div>
-            </form>
-        </div>
+            <div class="controls glass card file-upload-container" style="padding: 0.5rem 1rem;">
+                <form action="{% url 'upload_file' %}" method="post" enctype="multipart/form-data" 
+                    style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    {% csrf_token %}
+                    <label for="upload" style="margin:0; font-weight: 600;">File:</label>
+                    <input type="file" name="data_file" accept="*" style="flex: 0 0 auto; width: 200px; padding: 0.25rem;">
+                    <button type="submit" class="btn primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Upload</button>
+                    {% if uploaded_file_name %}
+                        <span style="margin-left: 0.5rem; font-size: 0.9rem;">Loaded: <strong>{{ uploaded_file_name }}</strong></span>
+                    {% endif %}
+                </form>
+            </div>
+
 
         <div class="controls glass card">
             <h3>Search & Filter</h3>
-            <form action="{% url 'query_graph' %}" method="post">
+            <form action="{% url 'query_graph' %}" method="post" style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
                 {% csrf_token %}
-
-                <label for="search">Search Graph</label>
-                <input type="text" id="search" name="search" placeholder="Enter node ID or value">
-
-                <label for="filter1">Attribute</label>
-                <input type="text" id="filter1" name="filter1">
-
-                <label for="operator">Operator</label>
-                <select id="operator" name="operator">
+                <input type="text" id="search" name="search" placeholder="Search node ID/value" style="flex: 2; min-width: 150px;">
+                <input type="text" id="filter1" name="filter1" placeholder="Attribute" style="flex: 1; min-width: 100px;">
+                <select id="operator" name="operator" style="flex: 0.7; min-width: 70px;">
                     <option value="==">==</option>
                     <option value="!=">!=</option>
                     <option value=">">&gt;</option>
@@ -107,28 +100,23 @@
                     <option value="<">&lt;</option>
                     <option value="<=">&lt;=</option>
                 </select>
-
-                <label for="filter2">Value</label>
-                <input type="text" id="filter2" name="filter2">
-
-                <div class="buttons">
-                    <button type="submit" class="btn primary">Apply</button>
-                    <a href="{% url 'reset_graph' %}" class="btn secondary">Reset</a>
-                </div>
+                <input type="text" id="filter2" name="filter2" placeholder="Value" style="flex: 1; min-width: 100px;">
+                <button type="submit" class="btn primary">Apply</button>
+                <a href="{% url 'reset_graph' %}" class="btn secondary">Reset</a>
             </form>
-            <div class="active-filters glass card">
+            <div class="active-filters glass card" style="margin-top: 0.75rem; padding: 0.5rem;">
                 <h4>Active Queries</h4>
                 <div class="chips">
                     {% if active_workspace_data %}
                         {% for s in active_workspace_data.searches %}
-                        <span class="chip">Search: "{{ s }}"
-                            <a href="{% url 'remove_search' forloop.counter0 %}">&times;</a>
-                        </span>
+                            <span class="chip">Search: "{{ s }}"
+                                <a href="{% url 'remove_search' forloop.counter0 %}">&times;</a>
+                            </span>
                         {% endfor %}
                         {% for f in active_workspace_data.filters %}
-                        <span class="chip">Filter: {{ f.attr }} {{ f.op }} {{ f.val }}
-                            <a href="{% url 'remove_filter' forloop.counter0 %}">&times;</a>
-                        </span>
+                            <span class="chip">Filter: {{ f.attr }} {{ f.op }} {{ f.val }}
+                                <a href="{% url 'remove_filter' forloop.counter0 %}">&times;</a>
+                            </span>
                         {% endfor %}
                     {% endif %}
                 </div>
