@@ -54,7 +54,7 @@ It leverages **D3.js** for visualization and **Jinja2** for templating, providin
 
 ## Installation & Setup
 
-1. Clone the repository:
+Clone the repository:
    ```bash
    git clone https://github.com/vzdravkovic7/sok-project-siit-2024-team-2.git
    cd <sok-project-siit-2024-team-2>
