@@ -91,6 +91,13 @@ class MainView(object):
                     graph = plugin.load(**clean_kwargs)
 
                     if workspace:
+                        cli_commands = workspace.get("cli_commands", [])
+                        if cli_commands:
+                            cli = GraphCLI(graph)
+                            for cmd in cli_commands:
+                                cli.run(cmd)
+                            graph = cli.graph
+
                         searches = workspace.get("searches", [])
                         if searches:
                             graph = SearchService.search(graph, searches)
@@ -98,13 +105,6 @@ class MainView(object):
                         filters = workspace.get("filters", [])
                         if filters:
                             graph = FilterService.apply_filters(graph, filters)
-
-                        cli_commands = workspace.get("cli_commands", [])
-                        if cli_commands:
-                            cli = GraphCLI(graph)
-                            for cmd in cli_commands:
-                                cli.run(cmd)
-                            graph = cli.graph
 
                 except Exception as e:
                     print("Datasource plugin error:", e)
