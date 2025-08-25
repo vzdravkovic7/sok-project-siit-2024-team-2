@@ -139,6 +139,46 @@
             {{ graph_view_header|safe }}
             {{ graph_view_body|safe }}
         </div>
+        <div class="controls glass card" id="graph-terminal">
+            <h3>Graph CLI</h3>
+
+            <div id="terminal-output">
+                {% for line in request.session.terminal_history %}
+                    {% if line.type == "command" %}
+                        <div class="terminal-command">{{ line.text }}</div>
+                    {% else %}
+                        <div class="terminal-output-line">{{ line.text }}</div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <form action="{% url 'terminal_command' %}" method="post" style="flex: 1; display: flex; gap: 0.5rem;">
+                    {% csrf_token %}
+                    <span class="terminal-prompt">&gt;</span>
+                    <input type="text" name="command" id="cli-input" placeholder="Enter command..." autocomplete="off" style="flex: 1;" />
+                    <button type="submit" class="btn secondary">Run</button>
+                </form>
+
+                <form method="post" action="{% url 'clear_terminal' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn secondary">Clear Terminal</button>
+                </form>
+            </div>
+
+            <div class="terminal-commands-list glass card">
+                <h4>Allowed Commands</h4>
+                <ul>
+                    <li>create node --id=&lt;id&gt; --property &lt;name&gt;=&lt;value&gt;</li>
+                    <li>create edge &lt;id1&gt; &lt;id2&gt;</li>
+                    <li>edit node --id=&lt;id&gt; --property &lt;name&gt;=&lt;value&gt;</li>
+                    <li>delete node --id=&lt;id&gt;</li>
+                    <li>delete edge &lt;id1&gt; &lt;id2&gt;</li>
+                    <li>filter &lt;attribute&gt;&lt;operator&gt;&lt;value&gt;</li>
+                    <li>search &lt;keyword&gt;</li>
+                </ul>
+            </div>
+          </div>
     </div>
 </div>
 </body>

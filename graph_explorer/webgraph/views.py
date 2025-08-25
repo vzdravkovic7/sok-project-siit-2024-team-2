@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from graph.use_cases.plugin_recognition import PluginService
 from graph.use_cases.graph_main_view import MainView
+from graph.use_cases.executor import GraphCLI
 from .apps import datasource_group, visualizer_group
 
 def _get_active_workspace(request):
@@ -169,3 +170,63 @@ def delete_workspace(request, name):
         request.session["workspaces"] = workspaces
         request.session.modified = True
     return redirect("index")
+
+def terminal_command(request):
+    if request.method != "POST":
+        return redirect("index")
+
+    command = request.POST.get("command", "").strip()
+    if not command:
+        return redirect("index")
+
+    if command.lower() == "cls":
+        return clear_terminal(request)
+
+    workspace, workspaces = _get_active_workspace(request)
+    if workspace is not None:
+        tokens = command.split(maxsplit=1)
+        cmd_type = tokens[0].lower()
+        rest = tokens[1].strip() if len(tokens) > 1 else ""
+
+        if cmd_type == "filter" and rest:
+            filters = workspace.get("filters", [])
+            for cond in rest.split("&&"):
+                cond = cond.strip()
+                for op in ["==", "!=", ">=", "<=", ">", "<"]:
+                    if op in cond:
+                        parts = cond.split(op, 1)
+                        if len(parts) == 2:
+                            attr, val = parts
+                            filters.append({
+                                "attr": attr.strip(),
+                                "op": op,
+                                "val": val.strip()
+                            })
+                        break
+            workspace["filters"] = filters
+
+        elif cmd_type == "search" and rest:
+            searches = workspace.get("searches", [])
+            keyword = rest.split()[0]
+            searches.append(keyword)
+            workspace["searches"] = searches
+
+        else:
+            cli_commands = workspace.get("cli_commands", [])
+            cli_commands.append(command)
+            workspace["cli_commands"] = cli_commands
+
+        request.session["workspaces"] = workspaces
+        request.session.modified = True
+
+    history = request.session.get("terminal_history", [])
+    history.append({"text": f"> {command}", "type": "command"})
+    request.session["terminal_history"] = history
+
+    return redirect("index")
+
+def clear_terminal(request):
+    if "terminal_history" in request.session:
+        request.session["terminal_history"] = []
+        request.session.modified = True
+        return redirect("index")

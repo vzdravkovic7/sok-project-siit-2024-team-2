@@ -13,4 +13,6 @@ urlpatterns = [
     path('reset', views.reset_graph, name="reset_graph"),
     path('remove_search/<int:index>/', views.remove_search, name="remove_search"),
     path('remove_filter/<int:index>/', views.remove_filter, name="remove_filter"),
+    path('terminal', views.terminal_command, name='terminal_command'),
+    path("terminal/clear/", views.clear_terminal, name="clear_terminal"),
 ]

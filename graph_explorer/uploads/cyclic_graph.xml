@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<People>
+    <Person id="1">
+        <FirstName>Grace</FirstName>
+        <LastName>Davis</LastName>
+        <Age>66</Age>
+        <City>Paris</City>
+        <Date>2025-12-12</Date>
+        <Friends>
+            <Friend reference="2" />
+        </Friends>
+    </Person>
+    <Person id="2">
+        <FirstName>Jack</FirstName>
+        <LastName>Smith</LastName>
+        <Age>68</Age>
+        <City>Madrid</City>
+        <Date>2025-03-03</Date>
+        <Friends>
+            <Friend reference="1" />
+        </Friends>
+    </Person>
+</People>
