@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='utf-8'?>
+<People>
+    <Person id="0">
+        <FirstName>David</FirstName>
+        <LastName>Dickinson</LastName>
+        <Age>29</Age>
+        <City>Berlin</City>
+        <Friends>
+            <Friend reference="1" />
+            <Friend reference="3" />
+        </Friends>
+    </Person>
+    <Person id="1">
+        <FirstName>Steve</FirstName>
+        <LastName>Brown</LastName>
+        <Age>56</Age>
+        <City>Paris</City>
+        <Friends>
+            <Friend reference="0" />
+        </Friends>
+    </Person>
+    <Person id="2">
+        <FirstName>Martin</FirstName>
+        <LastName>Garcia</LastName>
+        <Age>54</Age>
+        <City>Tokyo</City>
+        <Friends>
+            <Friend reference="4" />
+        </Friends>
+    </Person>
+    <Person id="3">
+        <FirstName>Ivy</FirstName>
+        <LastName>Smith</LastName>
+        <Age>64</Age>
+        <City>Paris</City>
+        <Friends>
+            <Friend reference="1" />
+        </Friends>
+    </Person>
+    <Person id="4">
+        <FirstName>Jack</FirstName>
+        <LastName>Williams</LastName>
+        <Age>73</Age>
+        <City>Ohio</City>
+    </Person>
+    <Person id="5">
+        <FirstName>Diana</FirstName>
+        <LastName>Jones</LastName>
+        <Age>53</Age>
+        <City>Berlin</City>
+    </Person>
+    <Person id="6">
+        <FirstName>Steve</FirstName>
+        <LastName>Martinez</LastName>
+        <Age>41</Age>
+        <City>Madrid</City>
+    </Person>
+    <Person id="7">
+        <FirstName>Bob</FirstName>
+        <LastName>Parker</LastName>
+        <Age>53</Age>
+        <City>Belgrade</City>
+    </Person>
+    <Person id="8">
+        <FirstName>Martin</FirstName>
+        <LastName>Dickinson</LastName>
+        <Age>18</Age>
+        <City>Sydney</City>
+    </Person>
+</People>
