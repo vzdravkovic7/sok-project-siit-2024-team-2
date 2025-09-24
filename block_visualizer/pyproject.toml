@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "graph-visualizer-block"
+version = "0.1"
+description = "BLock visualizer plugin for graph rendering."
+dependencies = [
+    "graph-api==0.1",
+    "Jinja2>=3.0",
+    "Django>=5.1"
+]
+
+[project.entry-points."graph.visualizer"]
+visualizer_block = "graph.block.plugin:BlockVisualizer"
+
+[tool.setuptools]
+provides = ["plugin"]
+py-modules = []
+packages = ["graph"]

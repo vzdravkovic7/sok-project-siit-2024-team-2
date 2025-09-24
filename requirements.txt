@@ -6,3 +6,4 @@ setuptools
 -e ./data_source_plugin_json
 -e ./data_source_plugin_xml
 -e ./simple_visualizer
+-e ./block_visualizer
