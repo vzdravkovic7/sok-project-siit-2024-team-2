@@ -203,8 +203,7 @@
     }
     renderNodes(treeContainer, data.nodes);
     
-
-    // Compute graph bounds for scaling in Bird View
+    // Set a horizontal view for the tree
     var minX = d3.min(data.nodes, d => d.x);
     var maxX = d3.max(data.nodes, d => d.x);
     var minY = d3.min(data.nodes, d => d.y);
@@ -228,7 +227,7 @@
     svg.append("defs").append("marker")
         .attr("id", "arrow")
         .attr("viewBox", "0 -5 10 10")
-        .attr("refX", 20)  // how far from the node center the arrow tip should be
+        .attr("refX", 20) 
         .attr("refY", 0)
         .attr("markerWidth", 6)
         .attr("markerHeight", 6)
@@ -320,7 +319,7 @@
         .style("font-size", "13px")
         .text(function(d){ return 'ID ' + d.id; });
 
-    // attributes block (we'll append tspans here)
+    // attributes block
     nodeEnter.append("text")
         .attr("class", "node-attributes")
         .attr("x", 4)
@@ -334,20 +333,15 @@
             var tsp = textEl.selectAll("tspan")
                 .data(attrs);
 
-            // enter
             tsp.enter().append("tspan")
                 .attr("x", 4)
                 .attr("dy", function(_, i) { return (i === 0) ? "0px" : "15px"; })
                 .text(function(a){ return a.key + ": " + a.value; });
 
-            // update text (in case data changes)
             tsp.text(function(a){ return a.key + ": " + a.value; });
-
-            // exit
             tsp.exit().remove();
         });
 
-    // EXIT
     node.exit().remove();
 
     // keep your tick function to move groups (adjusted to select ".node")
@@ -442,11 +436,11 @@
 
     // text (small ID inside rectangle)
     birdNode.append("text")
-        .attr("x", 6)                  // center horizontally (half of width)
-        .attr("y", 6)                  // small vertical padding
-        .attr("text-anchor", "middle") // center align
+        .attr("x", 6)                  
+        .attr("y", 6)                   
+        .attr("text-anchor", "middle") 
         .style("fill", "white")
-        .style("font-size", "7px")     // tiny font
+        .style("font-size", "7px") 
         .text(d => d.id);
 
     var birdViewport = birdSvg.append("rect")
